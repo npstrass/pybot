@@ -1,19 +1,16 @@
 import discord
+from discord.ext import commands
 import json
 
 with open('key.json', 'r') as f:
     data = json.load(f)
     TOKEN = data['TOKEN']
 
-client = discord.Client()
+client = commands.Bot(command_prefix="!")
 
-@client.event
-async def on_ready():
-    print("Bot is logged in.")
+@client.command()
+async def server(ctx):
+    ctx.guild
 
-@client.event
-async def on_message(message):
-    if message.content == "ping":
-        await message.channel.send('pong')
 
 client.run(TOKEN)
