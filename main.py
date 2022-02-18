@@ -10,15 +10,15 @@ with open('key.json', 'r') as f:
 
 client = commands.Bot(command_prefix=".")
 status = cycle([
-    "bothub.com",
-    "hottybotty.com",
-    "botsnthots.com",
-    "mailorderbots.com",
-    "onlybots.com",
-    "christianbotmingle.com",
-    "botharmony.com",
-    "botslist.org",
-    "tinder. I'm desperate.",
+    "amazing world of gumball",
+    "hot tub streams",
+    "adventure time",
+    "south park",
+    "rick and morty",
+    "bob's burgers",
+    "solar opposites",
+    "teen titans go",
+    "archer",
     "anyone but rob"
 ])
 
@@ -104,5 +104,36 @@ async def unban(ctx, *, member):
             await ctx.guild.unban(user)
             await ctx.send(f"Unbanned {user.mention}")
             return
+
+
+@client.command()
+@commands.has_permissions(administrator=True)
+async def softban(ctx, member: discord.Member, *, reason=None):
+    channel = client.get_channel(858032902506938378)
+    await member.ban(reason=reason)
+    await member.unban()
+    await channel.send(
+        f"{member} flew close to the sun... but not too close. Soft banning to warn and remove messages."
+    )
+    return
+
+
+@client.command()
+async def mod(ctx, *, message):
+    send_channel = client.get_channel(944082391645978665)
+    author = str(ctx.author)
+    channel = str(ctx.channel)
+    text = str(message)
+
+    embed = discord.Embed(
+        title="You got mail",
+        description=f"{author} has sent a message to mod mail",
+        color=discord.Color.random()
+    )
+    embed.add_field(name="Message", value=text, inline=True)
+    embed.add_field(name="Author", value=author, inline=True)
+    embed.add_field(name="In channel", value=channel, inline=True)
+
+    await send_channel.send(embed=embed)
 
 client.run(TOKEN)
