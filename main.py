@@ -22,17 +22,20 @@ status = cycle([
     "anyone but rob"
 ])
 
+# on ready
 
 @client.event
 async def on_ready():
     change_status.start()
     print("Bot is logged in.")
 
+# bot status
 
 @tasks.loop(hours=3)
 async def change_status():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=next(status)))
 
+# auto mod
 
 @client.event
 async def on_message(message):
@@ -53,6 +56,7 @@ async def on_message(message):
     else:
         await client.process_commands(message)
 
+# server
 
 @client.command()
 async def server(ctx):
@@ -79,18 +83,21 @@ async def server(ctx):
 
     await ctx.send(embed=embed)
 
+# clear
 
 @client.command()
 @commands.has_permissions(administrator=True)
 async def clear(ctx, amount=5):
     await ctx.channel.purge(limit=amount)
 
+# kick
 
 @client.command()
 @commands.has_permissions(administrator=True)
 async def kick(ctx, member: discord.Member, *, reason=None):
     await member.kick(reason=reason)
 
+# ban
 
 @client.command()
 @commands.has_permissions(administrator=True)
@@ -98,6 +105,7 @@ async def ban(ctx, member: discord.Member, *, reason=None):
     await member.ban(reason=reason)
     await ctx.send(f"Banned {member.mention}")
 
+# unban
 
 @client.command()
 @commands.has_permissions(administrator=True)
@@ -113,6 +121,7 @@ async def unban(ctx, *, member):
             await ctx.send(f"Unbanned {user.mention}")
             return
 
+# soft ban
 
 @client.command()
 @commands.has_permissions(administrator=True)
@@ -125,6 +134,7 @@ async def softban(ctx, member: discord.Member, *, reason=None):
     )
     return
 
+# mod mail
 
 @client.command()
 async def mod(ctx, *, message):
@@ -148,12 +158,14 @@ async def mod(ctx, *, message):
     await ctx.send("Your mail has been sent! A mod will get back to you as soon as possible.")
     await send_channel.send(embed=embed)
 
+# vote
 
 @client.command()
 async def vote(ctx):
     embed = discord.Embed(
         title="Vote for the server!",
-        description="Support our server by voting for us on Discord Street! :muscle:"
+        description="Support our server by voting for us on Discord Street! :muscle:",
+        color=discord.Color.teal()
     )
     embed.add_field(name="URL", value="https://discord.st/vote/nosecommunity/")
     await ctx.send(embed=embed)
