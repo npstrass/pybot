@@ -8,7 +8,9 @@ with open('key.json', 'r') as f:
     data = json.load(f)
     TOKEN = data['TOKEN']
 
-client = commands.Bot(command_prefix=".")
+intents = discord.Intents.all()
+
+client = commands.Bot(command_prefix=".", intents=intents)
 status = cycle([
     "amazing world of gumball",
     "hot tub streams",
@@ -32,6 +34,19 @@ async def on_ready():
 @tasks.loop(hours=3)
 async def change_status():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=next(status)))
+
+
+@client.event
+async def on_member_join(member):
+    alert_channel = client.get_channel(858032902506938378)
+    welcome_channel = client.get_channel(859490311897350144)
+    embed = discord.Embed(
+        title="New User",
+        description=f"{member} has joined the server.",
+        color=discord.Color.random()
+    )
+    await welcome_channel.send(f"Welcome, {member.mention}, to our community! Glad to have you.")
+    await alert_channel.send(embed=embed)
 
 
 @client.event
@@ -83,26 +98,45 @@ async def server(ctx):
 
 
 @client.command()
-@commands.has_role('mods' or 'staff' or 'super staff')
+@commands.has_role('mods')
 async def clear(ctx, amount=5):
+    alert_channel = client.get_channel(858032902506938378)
+    embed = discord.Embed(
+        title="Messages Cleared",
+        description=f"{ctx.author} has cleared {amount} messages from {ctx.channel.mention}"
+    )
     await ctx.channel.purge(limit=amount)
+    await alert_channel.send(embed=embed)
 
 
 @client.command()
-@commands.has_role('mods' or 'staff' or 'super staff')
+@commands.has_role('mods')
 async def kick(ctx, member: discord.Member, *, reason=None):
+    alert_channel = client.get_channel(858032902506938378)
+    embed = discord.Embed(
+        title="Member kicked",
+        description=f"{ctx.author} has kicked {member} for the following reason:"
+    )
+    embed.add_field(name="Reason", value=reason, inline=True)
     await member.kick(reason=reason)
+    await alert_channel.send(embed=embed)
 
 
 @client.command()
-@commands.has_role('mods' or 'staff' or 'super staff')
+@commands.has_role('mods')
 async def ban(ctx, member: discord.Member, *, reason=None):
+    alert_channel = client.get_channel(858032902506938378)
+    embed = discord.Embed(
+        title="Member banned",
+        description=f"{ctx.author} has banned {member} for the following reason:"
+    )
+    embed.add_field(name="Reason", value=reason, inline=True)
     await member.ban(reason=reason)
-    await ctx.send(f"Banned {member.mention}")
+    await alert_channel.send(embed=embed)
 
 
 @client.command()
-@commands.has_role('mods' or 'staff' or 'super staff')
+@commands.has_role('mods')
 async def unban(ctx, *, member):
     banned_users = await ctx.guild.bans()
     member_name, member_discriminator = member.split('#')
@@ -111,20 +145,28 @@ async def unban(ctx, *, member):
         user = ban_entry.user
 
         if (user.name, user.discriminator) == (member_name, member_discriminator):
+            alert_channel = client.get_channel(858032902506938378)
+            embed = discord.Embed(
+                title="Member unbanned",
+                description=f"{ctx.author} has unbanned {member}"
+            )
             await ctx.guild.unban(user)
-            await ctx.send(f"Unbanned {user.mention}")
+            await alert_channel.send(embed=embed)
             return
 
 
 @client.command()
-@commands.has_role('mods' or 'staff' or 'super staff')
+@commands.has_role('mods')
 async def softban(ctx, member: discord.Member, *, reason=None):
-    channel = client.get_channel(858032902506938378)
+    alert_channel = client.get_channel(858032902506938378)
+    embed = discord.Embed(
+        title="Member soft banned",
+        description=f"{ctx.author} has soft banned {member} for the following reason:"
+    )
+    embed.add_field(name="Reason", value=reason, inline=True)
     await member.ban(reason=reason)
     await member.unban()
-    await channel.send(
-        f"{member} flew close to the sun... but not too close. Soft banning to warn and remove messages."
-    )
+    await alert_channel.send(embed=embed)
     return
 
 
@@ -159,6 +201,7 @@ async def vote(ctx):
         color=discord.Color.teal()
     )
     embed.add_field(name="URL", value="https://discord.st/vote/nosecommunity/", inline=True)
+    await ctx.channel.purge(limit=1)
     await ctx.send(embed=embed)
 
 
