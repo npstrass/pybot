@@ -43,7 +43,7 @@ async def on_member_join(member):
     embed = discord.Embed(
         title="New User",
         description=f"{member} has joined the server.",
-        color=discord.Color.random()
+        color=discord.Color.green()
     )
     await welcome_channel.send(f"Welcome, {member.mention}, to our community! Glad to have you.")
     await alert_channel.send(embed=embed)
@@ -55,7 +55,7 @@ async def on_message(message):
         channel = client.get_channel(858032902506938378)
         embed = discord.Embed(
             title="Message deleted",
-            color=discord.Color.dark_theme()
+            color=discord.Color.purple()
         )
         embed.add_field(name="User", value=message.author, inline=True)
         embed.add_field(name="Channel", value=message.channel, inline=True)
@@ -115,7 +115,8 @@ async def kick(ctx, member: discord.Member, *, reason=None):
     alert_channel = client.get_channel(858032902506938378)
     embed = discord.Embed(
         title="Member kicked",
-        description=f"{ctx.author} has kicked {member} for the following reason:"
+        description=f"{ctx.author} has kicked {member} for the following reason:",
+        color=discord.Color.gold()
     )
     embed.add_field(name="Reason", value=reason, inline=True)
     await member.kick(reason=reason)
@@ -128,7 +129,8 @@ async def ban(ctx, member: discord.Member, *, reason=None):
     alert_channel = client.get_channel(858032902506938378)
     embed = discord.Embed(
         title="Member banned",
-        description=f"{ctx.author} has banned {member} for the following reason:"
+        description=f"{ctx.author} has banned {member} for the following reason:",
+        color=discord.Color.red()
     )
     embed.add_field(name="Reason", value=reason, inline=True)
     await member.ban(reason=reason)
@@ -148,7 +150,8 @@ async def unban(ctx, *, member):
             alert_channel = client.get_channel(858032902506938378)
             embed = discord.Embed(
                 title="Member unbanned",
-                description=f"{ctx.author} has unbanned {member}"
+                description=f"{ctx.author} has unbanned {member}",
+                color=discord.Color.light_grey()
             )
             await ctx.guild.unban(user)
             await alert_channel.send(embed=embed)
@@ -161,7 +164,8 @@ async def softban(ctx, member: discord.Member, *, reason=None):
     alert_channel = client.get_channel(858032902506938378)
     embed = discord.Embed(
         title="Member soft banned",
-        description=f"{ctx.author} has soft banned {member} for the following reason:"
+        description=f"{ctx.author} has soft banned {member} for the following reason:",
+        color=discord.Color.orange()
     )
     embed.add_field(name="Reason", value=reason, inline=True)
     await member.send(
@@ -186,7 +190,7 @@ async def mod(ctx, *, message):
     embed = discord.Embed(
         title="You got mail",
         description=f"{nick} has sent a message to mod mail",
-        color=discord.Color.random()
+        color=discord.Color.dark_teal()
     )
     embed.add_field(name="Message", value=text, inline=True)
     embed.add_field(name="Author", value=author, inline=True)
