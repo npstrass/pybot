@@ -22,28 +22,25 @@ status = cycle([
     "anyone but rob"
 ])
 
-# on ready
 
 @client.event
 async def on_ready():
     change_status.start()
     print("Bot is logged in.")
 
-# bot status
 
 @tasks.loop(hours=3)
 async def change_status():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=next(status)))
 
-# auto mod
 
 @client.event
 async def on_message(message):
     if any(word in message.content for word in illegal_words):
         channel = client.get_channel(858032902506938378)
         embed = discord.Embed(
-             title="Message deleted",
-             color=discord.Color.dark_theme()
+            title="Message deleted",
+            color=discord.Color.dark_theme()
         )
         embed.add_field(name="User", value=message.author, inline=True)
         embed.add_field(name="Channel", value=message.channel, inline=True)
@@ -51,12 +48,13 @@ async def on_message(message):
 
         if message.channel != channel:
             await message.delete()
-            await message.channel.send("""That word is not allowed to be used! Continued use of banned words will lead to a timeout or permanent ban from the server. Tread carefully.""")
+            await message.channel.send(
+                "That word is not allowed to be used! Continued use of banned words will lead to a timeout or \n"
+                "permanent ban from the server. Tread carefully.")
             await channel.send(embed=embed)
     else:
         await client.process_commands(message)
 
-# server
 
 @client.command()
 async def server(ctx):
@@ -83,32 +81,28 @@ async def server(ctx):
 
     await ctx.send(embed=embed)
 
-# clear
 
 @client.command()
-@commands.has_permissions(administrator=True)
+@commands.has_role('mods' or 'staff')
 async def clear(ctx, amount=5):
     await ctx.channel.purge(limit=amount)
 
-# kick
 
 @client.command()
-@commands.has_permissions(administrator=True)
+@commands.has_role('mods' or 'staff')
 async def kick(ctx, member: discord.Member, *, reason=None):
     await member.kick(reason=reason)
 
-# ban
 
 @client.command()
-@commands.has_permissions(administrator=True)
+@commands.has_role('mods' or 'staff')
 async def ban(ctx, member: discord.Member, *, reason=None):
     await member.ban(reason=reason)
     await ctx.send(f"Banned {member.mention}")
 
-# unban
 
 @client.command()
-@commands.has_permissions(administrator=True)
+@commands.has_role('mods' or 'staff')
 async def unban(ctx, *, member):
     banned_users = await ctx.guild.bans()
     member_name, member_discriminator = member.split('#')
@@ -121,10 +115,9 @@ async def unban(ctx, *, member):
             await ctx.send(f"Unbanned {user.mention}")
             return
 
-# soft ban
 
 @client.command()
-@commands.has_permissions(administrator=True)
+@commands.has_role('mods' or 'staff')
 async def softban(ctx, member: discord.Member, *, reason=None):
     channel = client.get_channel(858032902506938378)
     await member.ban(reason=reason)
@@ -134,7 +127,6 @@ async def softban(ctx, member: discord.Member, *, reason=None):
     )
     return
 
-# mod mail
 
 @client.command()
 async def mod(ctx, *, message):
@@ -158,7 +150,6 @@ async def mod(ctx, *, message):
     await ctx.send("Your mail has been sent! A mod will get back to you as soon as possible.")
     await send_channel.send(embed=embed)
 
-# vote
 
 @client.command()
 async def vote(ctx):
@@ -167,7 +158,54 @@ async def vote(ctx):
         description="Support our server by voting for us on Discord Street! :muscle:",
         color=discord.Color.teal()
     )
-    embed.add_field(name="URL", value="https://discord.st/vote/nosecommunity/")
+    embed.add_field(name="URL", value="https://discord.st/vote/nosecommunity/", inline=True)
     await ctx.send(embed=embed)
+
+
+@client.command()
+@commands.has_permissions(administrator=True)
+async def instruct(ctx):
+    embed = discord.Embed(
+        title="Mod commands:",
+        description="Below are the commands mods can use to keep the server in check",
+        color=discord.Color.dark_grey()
+    )
+    embed.add_field(
+        name=".clear",
+        inline=True,
+        value="The clear command by itself will erase the previous 5 lines of messages. You can indicate a quantity "
+              "with .clear 10."
+    )
+    embed.add_field(
+        name=".kick",
+        value="The kick command will kick the member tagged after. For example, .kick @rob. Any text following the "
+              "user will indicate the reason for the kick. If you kick someone, please provide a reason.",
+        inline=True
+    )
+    embed.add_field(
+        name=".ban",
+        value="The ban command will permanently ban the member tagged after. For example, .ban @rob. Any text "
+              "following the user will indicate the reason for the ban. If you ban someone, you MUST provide a reason.",
+        inline=True
+    )
+    embed.add_field(
+        name=".unban",
+        value="The unban command will unban the member tagged after. For example, .unban @rob.",
+        inline=True
+    )
+    embed.add_field(
+        name=".softban",
+        value="The softban command will ban and immediately unban the member tagged after. Can be used to warn and "
+              "will erase a members messages server wide. For example .softban @rob. Any text following the user will "
+              "indicate the reason for the softban. If you softban, you MUST provide a reason.",
+        inline=True)
+    embed.add_field(
+        name=".vote",
+        value="The vote command will prompt in the channel used the url to vote. Please use this to promote voting, "
+              "engagement, and growth within the server. All members can use this command.",
+        inline=True
+    )
+    await ctx.send(embed=embed)
+
 
 client.run(TOKEN)
