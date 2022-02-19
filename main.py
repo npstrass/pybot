@@ -83,26 +83,26 @@ async def server(ctx):
 
 
 @client.command()
-@commands.has_role('mods' or 'staff')
+@commands.has_role('mods' or 'staff' or 'super staff')
 async def clear(ctx, amount=5):
     await ctx.channel.purge(limit=amount)
 
 
 @client.command()
-@commands.has_role('mods' or 'staff')
+@commands.has_role('mods' or 'staff' or 'super staff')
 async def kick(ctx, member: discord.Member, *, reason=None):
     await member.kick(reason=reason)
 
 
 @client.command()
-@commands.has_role('mods' or 'staff')
+@commands.has_role('mods' or 'staff' or 'super staff')
 async def ban(ctx, member: discord.Member, *, reason=None):
     await member.ban(reason=reason)
     await ctx.send(f"Banned {member.mention}")
 
 
 @client.command()
-@commands.has_role('mods' or 'staff')
+@commands.has_role('mods' or 'staff' or 'super staff')
 async def unban(ctx, *, member):
     banned_users = await ctx.guild.bans()
     member_name, member_discriminator = member.split('#')
@@ -117,7 +117,7 @@ async def unban(ctx, *, member):
 
 
 @client.command()
-@commands.has_role('mods' or 'staff')
+@commands.has_role('mods' or 'staff' or 'super staff')
 async def softban(ctx, member: discord.Member, *, reason=None):
     channel = client.get_channel(858032902506938378)
     await member.ban(reason=reason)
