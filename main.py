@@ -29,7 +29,7 @@ async def on_ready():
     print("Bot is logged in.")
 
 
-@tasks.loop(hours=1)
+@tasks.loop(hours=3)
 async def change_status():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=next(status)))
 
@@ -38,10 +38,18 @@ async def change_status():
 async def on_message(message):
     if any(word in message.content for word in illegal_words):
         channel = client.get_channel(858032902506938378)
+        embed = discord.Embed(
+             title="Message deleted",
+             color=discord.Color.dark_theme()
+        )
+        embed.add_field(name="User", value=message.author, inline=True)
+        embed.add_field(name="Channel", value=message.channel, inline=True)
+        embed.add_field(name="Message removed", value=message.content, inline=True)
+
         if message.channel != channel:
             await message.delete()
             await message.channel.send("""That word is not allowed to be used! Continued use of banned words will lead to a timeout or permanent ban from the server. Tread carefully.""")
-            await channel.send(f"{message.author} has been warned for their word choice - '{message.content}'")
+            await channel.send(embed=embed)
     else:
         await client.process_commands(message)
 
@@ -122,18 +130,32 @@ async def softban(ctx, member: discord.Member, *, reason=None):
 async def mod(ctx, *, message):
     send_channel = client.get_channel(944082391645978665)
     author = str(ctx.author)
+    nick = str(ctx.author.nick)
     channel = str(ctx.channel)
     text = str(message)
+    message_url = ctx.message.jump_url
 
     embed = discord.Embed(
         title="You got mail",
-        description=f"{author} has sent a message to mod mail",
+        description=f"{nick} has sent a message to mod mail",
         color=discord.Color.random()
     )
     embed.add_field(name="Message", value=text, inline=True)
     embed.add_field(name="Author", value=author, inline=True)
     embed.add_field(name="In channel", value=channel, inline=True)
+    embed.add_field(name="Url", value=message_url, inline=True)
 
+    await ctx.send("Your mail has been sent! A mod will get back to you as soon as possible.")
     await send_channel.send(embed=embed)
+
+
+@client.command()
+async def vote(ctx):
+    embed = discord.Embed(
+        title="Vote for the server!",
+        description="Support our server by voting for us on Discord Street! :muscle:"
+    )
+    embed.add_field(name="URL", value="https://discord.st/vote/nosecommunity/")
+    await ctx.send(embed=embed)
 
 client.run(TOKEN)
