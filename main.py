@@ -164,6 +164,10 @@ async def softban(ctx, member: discord.Member, *, reason=None):
         description=f"{ctx.author} has soft banned {member} for the following reason:"
     )
     embed.add_field(name="Reason", value=reason, inline=True)
+    await member.send(
+        "You've been soft banned as a warning. You can use https://discord.gg/arcz8ctYaW to rejoin the server. Please "
+        "revisit the rules and follow them. Thank you. "
+    )
     await member.ban(reason=reason)
     await member.unban()
     await alert_channel.send(embed=embed)
