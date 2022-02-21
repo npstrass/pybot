@@ -119,6 +119,15 @@ async def kick(ctx, member: discord.Member, *, reason=None):
         color=discord.Color.gold()
     )
     embed.add_field(name="Reason", value=reason, inline=True)
+    try:
+        await member.send(
+            "You've been kicked from the server. You can use https://discord.gg/arcz8ctYaW to rejoin the server. "
+            "Please revisit the rules and follow them going forward or a permanent ban will follow. Thank you. "
+        )
+    except:
+        await alert_channel.send(
+            f"Error: {member} was kicked but no message was sent. DMs for this user are closed."
+        )
     await member.kick(reason=reason)
     await alert_channel.send(embed=embed)
 
@@ -168,10 +177,15 @@ async def softban(ctx, member: discord.Member, *, reason=None):
         color=discord.Color.orange()
     )
     embed.add_field(name="Reason", value=reason, inline=True)
-    await member.send(
-        "You've been soft banned as a warning. You can use https://discord.gg/arcz8ctYaW to rejoin the server. Please "
-        "revisit the rules and follow them. Thank you. "
-    )
+    try:
+        await member.send(
+            "You've been soft banned as a warning. You can use https://discord.gg/arcz8ctYaW to rejoin the server. "
+            "Please revisit the rules and follow them. Thank you. "
+        )
+    except:
+        await alert_channel.send(
+            f"Error: {member} was soft banned but no message was sent. DMs for this user are closed."
+        )
     await member.ban(reason=reason)
     await member.unban()
     await alert_channel.send(embed=embed)
