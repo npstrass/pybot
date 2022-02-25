@@ -193,6 +193,26 @@ async def softban(ctx, member: discord.Member, *, reason=None):
 
 
 @client.command()
+@commands.has_role('mods')
+async def announce(ctx, member: discord.Member, link, *, message):
+    announce_channel = client.get_channel(545149173872328747)
+    name = member.display_name
+    pfp = member.avatar_url
+    embed = discord.Embed(
+        title=f"{name} is going live 🔴",
+        description=message,
+        color=discord.Color.purple()
+    )
+    embed.set_image(url=pfp)
+    embed.add_field(name="Link", value=link, inline=True)
+    try:
+        await announce_channel.send(embed=embed)
+    except:
+        await ctx.send(f"Error: Make sure you use the format '.announce @member link message'")
+
+
+
+@client.command()
 async def mod(ctx, *, message):
     send_channel = client.get_channel(944082391645978665)
     author = str(ctx.author)
