@@ -12,16 +12,7 @@ intents = discord.Intents.all()
 
 client = commands.Bot(command_prefix=".", intents=intents)
 status = cycle([
-    "amazing world of gumball",
-    "hot tub streams",
-    "adventure time",
-    "south park",
-    "rick and morty",
-    "bob's burgers",
-    "solar opposites",
-    "teen titans go",
-    "archer",
-    "anyone but rob"
+    "your mom",
 ])
 
 
@@ -194,17 +185,17 @@ async def softban(ctx, member: discord.Member, *, reason=None):
 
 @client.command()
 @commands.has_role('mods')
-async def announce(ctx, member: discord.Member, link, *, message):
+async def announce(ctx, member: discord.Member, user, *, message):
     announce_channel = client.get_channel(545149173872328747)
     name = member.display_name
     pfp = member.avatar_url
     embed = discord.Embed(
         title=f"{name} is going live 🔴",
-        description=message,
+        description=f"@everyone {message}",
         color=discord.Color.purple()
     )
     embed.set_image(url=pfp)
-    embed.add_field(name="Link", value=link, inline=True)
+    embed.add_field(name="Link", value=f"https://twitch.tv/{user}", inline=True)
     try:
         await announce_channel.send(embed=embed)
     except:
