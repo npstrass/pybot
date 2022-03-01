@@ -11,9 +11,7 @@ with open('key.json', 'r') as f:
 intents = discord.Intents.all()
 
 client = commands.Bot(command_prefix=".", intents=intents)
-status = cycle([
-    "your mom",
-])
+status = cycle([""])
 
 
 @client.event
@@ -22,9 +20,9 @@ async def on_ready():
     print("Bot is logged in.")
 
 
-@tasks.loop(hours=3)
-async def change_status():
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=next(status)))
+# @tasks.loop(hours=3)
+# async def change_status():
+#     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name=next(status)))
 
 
 @client.event
