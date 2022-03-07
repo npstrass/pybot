@@ -13,14 +13,10 @@ intents = discord.Intents.all()
 client = commands.Bot(command_prefix=".", intents=intents)
 status = cycle(["Spotify", ".mod", ".vote"])
 
-
 @client.event
-try:
-    async def on_ready():
-        change_status.start()
-        print("Bot is logged in.")
-except:
-    print("Bot is already logged in")
+async def on_ready():
+    change_status.start()
+    print("Pybot logged in")
 
 
 @tasks.loop(hours=3)
