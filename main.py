@@ -1,6 +1,7 @@
+import asyncio
+
 import discord
-from discord.ext import commands, tasks
-from itertools import cycle
+from discord.ext import commands
 from word_list import illegal_words
 import json
 
@@ -11,17 +12,11 @@ with open('key.json', 'r') as f:
 intents = discord.Intents.all()
 
 client = commands.Bot(command_prefix=".", intents=intents)
-status = cycle(["Spotify", ".mod", ".vote"])
+
 
 @client.event
 async def on_ready():
-    change_status.start()
     print("Pybot logged in")
-
-
-@tasks.loop(hours=3)
-async def change_status():
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=next(status)))
 
 
 @client.event
@@ -66,7 +61,6 @@ async def server(ctx):
 
     owner = str(ctx.guild.owner)
     guild_id = str(ctx.guild.id)
-    region = str(ctx.guild.region)
     member_count = str(ctx.guild.member_count)
 
     icon = str(ctx.guild.icon_url)
@@ -79,10 +73,9 @@ async def server(ctx):
     embed.set_thumbnail(url=icon)
     embed.add_field(name="Owner", value=owner, inline=True)
     embed.add_field(name="Server ID", value=guild_id, inline=True)
-    embed.add_field(name="Region", value=region, inline=True)
     embed.add_field(name="Member Count", value=member_count, inline=True)
 
-    await ctx.send(embed=embed)
+    await ctx.reply(embed=embed)
 
 
 @client.command()
@@ -196,8 +189,7 @@ async def announce(ctx, member: discord.Member, user, *, message):
     try:
         await announce_channel.send(embed=embed)
     except:
-        await ctx.send(f"Error: Make sure you use the format '.announce @member link message'")
-
+        await ctx.reply(f"Error: Make sure you use the format '.announce @member link message'")
 
 
 @client.command()
@@ -219,8 +211,70 @@ async def mod(ctx, *, message):
     embed.add_field(name="In channel", value=channel, inline=True)
     embed.add_field(name="Url", value=message_url, inline=True)
 
-    await ctx.send("Your mail has been sent! A mod will get back to you as soon as possible.")
+    await ctx.reply("Your mail has been sent! A mod will get back to you as soon as possible.")
     await send_channel.send(embed=embed)
+
+
+@client.command()
+async def drag(ctx):
+    if ctx.channel.id == 969842261028397066:
+        send_channel = client.get_channel(969842629317636116)
+        voice_channel = client.get_channel(943693630349148200)
+        author = ctx.author
+        nick = str(ctx.author.nick)
+
+        embed = discord.Embed(
+            title="Drag request",
+            description=f"{nick} is requesting a drag down to a live room",
+            color=discord.Color.gold()
+        )
+        embed.add_field(name="Mention", value=author.mention, inline=True)
+        embed.add_field(name="Author", value=author, inline=True)
+
+        await ctx.reply("Your drag request has been sent.")
+        msg = await send_channel.send(embed=embed)
+        await msg.add_reaction("✅")
+
+        def check(reaction, user):
+            return user != msg.author and str(reaction.emoji) == '✅'
+
+        try:
+            reaction, user = await client.wait_for('reaction_add', check=check, timeout=60.0)
+        except asyncio.TimeoutError:
+            await ctx.reply("Your request timed out")
+        else:
+            try:
+                await author.move_to(voice_channel)
+                await send_channel.send(f"{user.nick} has dragged {nick} to live room 1 {reaction}")
+            except:
+                await ctx.reply("Make sure you're in a voice chat! Try again.")
+                await send_channel.send("Error. Incorrect reaction or user not in voice chat")
+    else:
+        await ctx.reply("That command is not valid here. Please go to channel <#969842261028397066>")
+        await ctx.message.delete()
+
+
+@client.command()
+@commands.has_role('mods')
+async def d1(ctx):
+    try:
+        drag_channel = client.get_channel(944411038307213332)
+        member_to_drag_1 = drag_channel.members[0]
+        voice_channel = client.get_channel(943693630349148200)
+        await member_to_drag_1.move_to(voice_channel)
+    except:
+        print("error moving member to live room 1")
+    await ctx.message.delete()
+
+
+@client.command()
+@commands.has_role('mods')
+async def b(ctx, member: discord.Member = None):
+    try:
+        await member.move_to(None)
+    except:
+        print("error booting member")
+    await ctx.message.delete()
 
 
 @client.command()
@@ -231,7 +285,7 @@ async def vote(ctx):
         color=discord.Color.teal()
     )
     embed.add_field(name="URL", value="https://discord.st/vote/nosecommunity/", inline=True)
-    await ctx.channel.purge(limit=1)
+    await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
