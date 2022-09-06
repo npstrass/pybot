@@ -335,4 +335,9 @@ async def instruct(ctx):
     await ctx.send(embed=embed)
 
 
+@client.command()
+async def ping(ctx):
+    await ctx.send("pong")
+
+
 client.run(TOKEN)
