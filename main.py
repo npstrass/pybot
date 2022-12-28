@@ -2,6 +2,7 @@ import asyncio
 
 import discord
 from discord.ext import commands
+from discord.utils import get
 from word_list import illegal_words
 import json
 
@@ -12,6 +13,8 @@ with open('key.json', 'r') as f:
 intents = discord.Intents.all()
 
 client = commands.Bot(command_prefix=".", intents=intents)
+
+ticketNumber = 1
 
 
 @client.event
@@ -192,27 +195,45 @@ async def announce(ctx, member: discord.Member, user, *, message):
         await ctx.reply(f"Error: Make sure you use the format '.announce @member link message'")
 
 
+# @client.command()
+# async def mod(ctx, *, message):
+#     send_channel = client.get_channel(944082391645978665)
+#     author = str(ctx.author)
+#     nick = str(ctx.author.nick)
+#     channel = str(ctx.channel)
+#     text = str(message)
+#     message_url = ctx.message.jump_url
+#
+#     embed = discord.Embed(
+#         title="You got mail",
+#         description=f"{nick} has sent a message to mod mail",
+#         color=discord.Color.dark_teal()
+#     )
+#     embed.add_field(name="Message", value=text, inline=True)
+#     embed.add_field(name="Author", value=author, inline=True)
+#     embed.add_field(name="In channel", value=channel, inline=True)
+#     embed.add_field(name="Url", value=message_url, inline=True)
+#
+#     await ctx.reply("Your mail has been sent! A mod will get back to you as soon as possible.")
+#     await send_channel.send(embed=embed)
+
+
 @client.command()
-async def mod(ctx, *, message):
-    send_channel = client.get_channel(944082391645978665)
-    author = str(ctx.author)
-    nick = str(ctx.author.nick)
-    channel = str(ctx.channel)
-    text = str(message)
-    message_url = ctx.message.jump_url
-
-    embed = discord.Embed(
-        title="You got mail",
-        description=f"{nick} has sent a message to mod mail",
-        color=discord.Color.dark_teal()
-    )
-    embed.add_field(name="Message", value=text, inline=True)
-    embed.add_field(name="Author", value=author, inline=True)
-    embed.add_field(name="In channel", value=channel, inline=True)
-    embed.add_field(name="Url", value=message_url, inline=True)
-
-    await ctx.reply("Your mail has been sent! A mod will get back to you as soon as possible.")
-    await send_channel.send(embed=embed)
+async def ticket(ctx):
+    global ticketNumber
+    ticketNumber = str(ticketNumber)
+    guild = ctx.message.guild
+    author = ctx.author
+    mod_role = get(guild.roles, name="mods")
+    name = str(f'ticket #{ticketNumber}')
+    await ctx.message.delete()
+    category = await ctx.guild.create_category(name)
+    await category.set_permissions(ctx.guild.default_role, read_messages=False, connect=False)
+    await category.set_permissions(author, read_messages=True, send_messages=True, connect=True)
+    await category.set_permissions(mod_role, read_messages=True, send_messages=True, connect=True)
+    channel = await guild.create_text_channel(f"{author.nick}'s ticket", topic="AHHHHH YOU NEED HELP!", category=category, sync_permissions=True)
+    await channel.send(f'{author.mention}, please type your help request below and one of our {mod_role.mention} will assist you as soon as they can!')
+    ticketNumber = int(ticketNumber) + 1
 
 
 @client.command()
