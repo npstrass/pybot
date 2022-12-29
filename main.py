@@ -225,15 +225,34 @@ async def ticket(ctx):
     guild = ctx.message.guild
     author = ctx.author
     mod_role = get(guild.roles, name="mods")
-    name = str(f'ticket #{ticketNumber}')
+    name = str(f'help ticket 00{ticketNumber}')
     await ctx.message.delete()
-    category = await ctx.guild.create_category(name)
-    await category.set_permissions(ctx.guild.default_role, read_messages=False, connect=False)
-    await category.set_permissions(author, read_messages=True, send_messages=True, connect=True)
-    await category.set_permissions(mod_role, read_messages=True, send_messages=True, connect=True)
-    channel = await guild.create_text_channel(f"{author.nick}'s ticket", topic="AHHHHH YOU NEED HELP!", category=category, sync_permissions=True)
-    await channel.send(f'{author.mention}, please type your help request below and one of our {mod_role.mention} will assist you as soon as they can!')
+    # category = await ctx.guild.create_category(name)
+    # await category.set_permissions(ctx.guild.default_role, read_messages=False, connect=False)
+    # await category.set_permissions(author, read_messages=True, send_messages=True, connect=True)
+    # await category.set_permissions(mod_role, read_messages=True, send_messages=True, connect=True)
+    channel = await guild.create_text_channel(f"{name} - {author.nick}", topic="AHHHHH YOU NEED HELP!")
+    await channel.set_permissions(ctx.guild.default_role, read_messages=False, connect=False)
+    await channel.set_permissions(mod_role, read_messages=True, send_messages=True, connect=True)
+    await channel.set_permissions(author, read_messages=True, send_messages=True, connect=True)
+    await channel.send(f'{author.mention}, please type your help request below and one of our {mod_role} will assist you as soon as they can!') # need to add mention to mod role
     ticketNumber = int(ticketNumber) + 1
+
+
+@client.command()
+@commands.has_role('mods')
+async def close(ctx):
+    name = ctx.channel.name
+    guild = ctx.message.guild
+    channel = discord.utils.get(guild.channels, name=name)
+    if 'help-ticket' in str(name):
+        filename = f"{name}.txt"
+        with open(filename, "w") as file:
+            async for msg in ctx.channel.history(limit=None):
+                file.write(f"{msg.created_at} - {msg.author.display_name}: {msg.clean_content}\n")
+        await channel.delete()
+    else:
+        await ctx.send('channel cannot be deleted')
 
 
 @client.command()
