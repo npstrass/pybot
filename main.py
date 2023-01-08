@@ -5,6 +5,7 @@ from discord.ext import commands
 from discord.utils import get
 from word_list import illegal_words
 import json
+from twitch import twitch_users as tu
 
 with open('key.json', 'r') as f:
     data = json.load(f)
@@ -177,45 +178,14 @@ async def softban(ctx, member: discord.Member, *, reason=None):
 
 
 @client.command()
-@commands.has_role('mods')
-async def announce(ctx, member: discord.Member, user, *, message):
-    announce_channel = client.get_channel(545149173872328747)
-    name = member.display_name
-    pfp = member.avatar_url
-    embed = discord.Embed(
-        title=f"{name} is going live 🔴",
-        description=f"@everyone {message}",
-        color=discord.Color.purple()
-    )
-    embed.set_image(url=pfp)
-    embed.add_field(name="Link", value=f"https://twitch.tv/{user}", inline=True)
-    try:
-        await announce_channel.send(embed=embed)
-    except:
-        await ctx.reply(f"Error: Make sure you use the format '.announce @member link message'")
-
-
-# @client.command()
-# async def mod(ctx, *, message):
-#     send_channel = client.get_channel(944082391645978665)
-#     author = str(ctx.author)
-#     nick = str(ctx.author.nick)
-#     channel = str(ctx.channel)
-#     text = str(message)
-#     message_url = ctx.message.jump_url
-#
-#     embed = discord.Embed(
-#         title="You got mail",
-#         description=f"{nick} has sent a message to mod mail",
-#         color=discord.Color.dark_teal()
-#     )
-#     embed.add_field(name="Message", value=text, inline=True)
-#     embed.add_field(name="Author", value=author, inline=True)
-#     embed.add_field(name="In channel", value=channel, inline=True)
-#     embed.add_field(name="Url", value=message_url, inline=True)
-#
-#     await ctx.reply("Your mail has been sent! A mod will get back to you as soon as possible.")
-#     await send_channel.send(embed=embed)
+async def live(ctx, member: discord.Member):
+    send_channel = client.get_channel(545149173872328747)
+    for i in tu:
+        if i[0] == str(member):
+            await ctx.message.delete()
+            await send_channel.send(f'🔴 {member.display_name} is going live! https://twitch.tv/{i[1]} 🔴')
+    await member.send("If your announcement was not made, it may be because you aren't a part of our streamer list. "
+                      "Please submit a `.ticket` and a mod will review your request! Thanks!")
 
 
 @client.command()
@@ -227,15 +197,11 @@ async def ticket(ctx):
     mod_role = get(guild.roles, name="mods")
     name = str(f'help ticket 00{ticketNumber}')
     await ctx.message.delete()
-    # category = await ctx.guild.create_category(name)
-    # await category.set_permissions(ctx.guild.default_role, read_messages=False, connect=False)
-    # await category.set_permissions(author, read_messages=True, send_messages=True, connect=True)
-    # await category.set_permissions(mod_role, read_messages=True, send_messages=True, connect=True)
     channel = await guild.create_text_channel(f"{name} - {author.nick}", topic="AHHHHH YOU NEED HELP!")
     await channel.set_permissions(ctx.guild.default_role, read_messages=False, connect=False)
     await channel.set_permissions(mod_role, read_messages=True, send_messages=True, connect=True)
     await channel.set_permissions(author, read_messages=True, send_messages=True, connect=True)
-    await channel.send(f'{author.mention}, please type your help request below and one of our {mod_role} will assist you as soon as they can!') # need to add mention to mod role
+    await channel.send(f'{author.mention}, please type your help request below and one of our {mod_role.mention} will assist you as soon as they can!')
     ticketNumber = int(ticketNumber) + 1
 
 
