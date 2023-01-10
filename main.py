@@ -189,10 +189,6 @@ async def close(ctx):
     guild = ctx.message.guild
     channel = discord.utils.get(guild.channels, name=name)
     if 'help-ticket' in str(name):
-        filename = f"{name}.txt"
-        with open(filename, "w") as file:
-            async for msg in ctx.channel.history(limit=None):
-                file.write(f"{msg.created_at} - {msg.author.display_name}: {msg.clean_content}\n")
         await channel.delete()
     else:
         await ctx.send('channel cannot be deleted')
