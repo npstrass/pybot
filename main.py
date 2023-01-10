@@ -172,6 +172,18 @@ async def live(ctx, member: discord.Member):
 
 
 @client.command()
+@commands.has_role('mods')
+async def move(ctx, member: discord.Member):
+    channel = client.get_channel(943693630349148200)
+    try:
+        await member.move_to(channel)
+        await ctx.message.delete()
+    except:
+        await ctx.send(f'{member.display_name} is not in a voice channel.')
+        await ctx.message.delete()
+
+
+@client.command()
 async def ticket(ctx):
     global ticketNumber
     ticketNumber = str(ticketNumber)
