@@ -64,6 +64,7 @@ async def announce(ctx, *, message):
     send_channel = client.get_channel(545149173872328747)
     await send_channel.send(message)
 
+
 @client.command()
 @commands.has_role('mods')
 async def clear(ctx, amount=5):
