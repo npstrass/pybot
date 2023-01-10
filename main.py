@@ -3,7 +3,6 @@ import asyncio
 import discord
 from discord.ext import commands
 from discord.utils import get
-from word_list import illegal_words
 import json
 from twitch import twitch_users as tu
 
@@ -34,28 +33,6 @@ async def on_member_join(member):
     )
     await welcome_channel.send(f"Welcome, {member.mention}, to our community! Glad to have you.")
     await alert_channel.send(embed=embed)
-
-
-@client.event
-async def on_message(message):
-    if any(word in message.content for word in illegal_words):
-        channel = client.get_channel(858032902506938378)
-        embed = discord.Embed(
-            title="Message deleted",
-            color=discord.Color.purple()
-        )
-        embed.add_field(name="User", value=message.author, inline=True)
-        embed.add_field(name="Channel", value=message.channel, inline=True)
-        embed.add_field(name="Message removed", value=message.content, inline=True)
-
-        if message.channel != channel:
-            await message.delete()
-            await message.channel.send(
-                "That word is not allowed to be used! Continued use of banned words will lead to a timeout or \n"
-                "permanent ban from the server. Tread carefully.")
-            await channel.send(embed=embed)
-    else:
-        await client.process_commands(message)
 
 
 @client.command()
@@ -222,68 +199,6 @@ async def close(ctx):
 
 
 @client.command()
-async def drag(ctx):
-    if ctx.channel.id == 969842261028397066:
-        send_channel = client.get_channel(969842629317636116)
-        voice_channel = client.get_channel(943693630349148200)
-        author = ctx.author
-        nick = str(ctx.author.nick)
-
-        embed = discord.Embed(
-            title="Drag request",
-            description=f"{nick} is requesting a drag down to a live room",
-            color=discord.Color.gold()
-        )
-        embed.add_field(name="Mention", value=author.mention, inline=True)
-        embed.add_field(name="Author", value=author, inline=True)
-
-        await ctx.reply("Your drag request has been sent.")
-        msg = await send_channel.send(embed=embed)
-        await msg.add_reaction("✅")
-
-        def check(reaction, user):
-            return user != msg.author and str(reaction.emoji) == '✅'
-
-        try:
-            reaction, user = await client.wait_for('reaction_add', check=check, timeout=60.0)
-        except asyncio.TimeoutError:
-            await ctx.reply("Your request timed out")
-        else:
-            try:
-                await author.move_to(voice_channel)
-                await send_channel.send(f"{user.nick} has dragged {nick} to live room 1 {reaction}")
-            except:
-                await ctx.reply("Make sure you're in a voice chat! Try again.")
-                await send_channel.send("Error. Incorrect reaction or user not in voice chat")
-    else:
-        await ctx.reply("That command is not valid here. Please go to channel <#969842261028397066>")
-        await ctx.message.delete()
-
-
-@client.command()
-@commands.has_role('mods')
-async def d1(ctx):
-    try:
-        drag_channel = client.get_channel(944411038307213332)
-        member_to_drag_1 = drag_channel.members[0]
-        voice_channel = client.get_channel(943693630349148200)
-        await member_to_drag_1.move_to(voice_channel)
-    except:
-        print("error moving member to live room 1")
-    await ctx.message.delete()
-
-
-@client.command()
-@commands.has_role('mods')
-async def b(ctx, member: discord.Member = None):
-    try:
-        await member.move_to(None)
-    except:
-        print("error booting member")
-    await ctx.message.delete()
-
-
-@client.command()
 async def vote(ctx):
     embed = discord.Embed(
         title="Vote for the server!",
@@ -292,52 +207,6 @@ async def vote(ctx):
     )
     embed.add_field(name="URL", value="https://discord.st/vote/nosecommunity/", inline=True)
     await ctx.message.delete()
-    await ctx.send(embed=embed)
-
-
-@client.command()
-@commands.has_permissions(administrator=True)
-async def instruct(ctx):
-    embed = discord.Embed(
-        title="Mod commands:",
-        description="Below are the commands mods can use to keep the server in check",
-        color=discord.Color.dark_grey()
-    )
-    embed.add_field(
-        name=".clear",
-        inline=True,
-        value="The clear command by itself will erase the previous 5 lines of messages. You can indicate a quantity "
-              "with .clear 10."
-    )
-    embed.add_field(
-        name=".kick",
-        value="The kick command will kick the member tagged after. For example, .kick @rob. Any text following the "
-              "user will indicate the reason for the kick. If you kick someone, please provide a reason.",
-        inline=True
-    )
-    embed.add_field(
-        name=".ban",
-        value="The ban command will permanently ban the member tagged after. For example, .ban @rob. Any text "
-              "following the user will indicate the reason for the ban. If you ban someone, you MUST provide a reason.",
-        inline=True
-    )
-    embed.add_field(
-        name=".unban",
-        value="The unban command will unban the member tagged after. For example, .unban @rob.",
-        inline=True
-    )
-    embed.add_field(
-        name=".softban",
-        value="The softban command will ban and immediately unban the member tagged after. Can be used to warn and "
-              "will erase a members messages server wide. For example .softban @rob. Any text following the user will "
-              "indicate the reason for the softban. If you softban, you MUST provide a reason.",
-        inline=True)
-    embed.add_field(
-        name=".vote",
-        value="The vote command will prompt in the channel used the url to vote. Please use this to promote voting, "
-              "engagement, and growth within the server. All members can use this command.",
-        inline=True
-    )
     await ctx.send(embed=embed)
 
 
